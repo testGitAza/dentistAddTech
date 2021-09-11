@@ -1,0 +1,6 @@
+{
+    "port":5000,
+    "jwtSecret": "addTechBarista addTechBarista",
+    "baseUrl": "http://localhost:5000"
+
+}
