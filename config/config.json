@@ -2,22 +2,22 @@
   "development": {
     "username": "postgres",
     "password": "postgres",
-    "database": "addTechBarista",
-    "host": "127.0.0.1",
+    "database": "dentistaddtech",
+    "host": "dentistaddtech.cfc7ta4wet04.us-east-1.rds.amazonaws.com",
     "dialect": "postgres"
   },
   "test": {
     "username": "postgres",
     "password": "postgres",
-    "database": "addTechBarista",
-    "host": "127.0.0.1",
+    "database": "dentistaddtech",
+    "host": "dentistaddtech.cfc7ta4wet04.us-east-1.rds.amazonaws.com",
     "dialect": "postgres"
   },
   "production": {
     "username": "postgres",
     "password": "postgres",
-    "database": "addTechBarista",
-    "host": "127.0.0.1",
+    "database": "dentistaddtech",
+    "host": "dentistaddtech.cfc7ta4wet04.us-east-1.rds.amazonaws.com",
     "dialect": "postgres"
   }
 }
