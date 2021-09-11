@@ -1,5 +1,5 @@
 {
-    "port":5432,
+    "port":5000,
     "jwtSecret": "addTechBarista addTechBarista",
-    "baseUrl": "http://localhost:5000"
+    "baseUrl": "https://ec2-3-87-162-77.compute-1.amazonaws.com/"
 }
