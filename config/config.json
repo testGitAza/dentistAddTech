@@ -9,14 +9,14 @@
   "test": {
     "username": "postgres",
     "password": "postgres",
-    "database": "dentistdb",
+    "database": "postgres",
     "host": "dentistdb.cfc7ta4wet04.us-east-1.rds.amazonaws.com",
     "dialect": "postgres"
   },
   "production": {
     "username": "postgres",
     "password": "postgres",
-    "database": "dentistdb",
+    "database": "postgres",
     "host": "dentistdb.cfc7ta4wet04.us-east-1.rds.amazonaws.com",
     "dialect": "postgres"
   }
