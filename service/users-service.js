@@ -1,4 +1,4 @@
-const {user,user_role,role} = require('../models');
+const {users,user_roles, roles,organizations} = require('../models');
 const ApiError = require('../exceptions/api-error');
 const bcrypt = require('bcryptjs');
 const UserDto = require('../dtos/user-dto');
@@ -8,29 +8,52 @@ class UsersService {
 
 
     async getAllUsers() {
-         const userData = await user.findAll({
-            attributes:{exclude:  ['password'], include:['id','login','surname', 'name', 'surname', 'enabled', 'createdAt', 'updatedAt'] },
+        return await users.findAll({
+            attributes:{exclude:  ['password'],include:['id','login','surname', 'name', 'surname', 'enabled', 'createdAt', 'updatedAt'] },
             include:[
                 {
-                    model: user_role, nest:true, raw:true, attributes:['id'],
+                    model: user_roles, attributes:['id'],
                     include:[
-                        { model: role, as: 'roleLink', paranoid: true }
+                        { model: roles, as: 'roleLink' }
                     ]
-                }
+                },
+                {model: organizations, as: 'organizationLink'}
             ]
         });
-        return userData
     }
 
-    async registration(login, password,surname,name,enabled,roles){
-        const candidate = await user.findOne({ where: { login: login } });
+    async getUsersByOrganizationId(organization_id) {
+        return await users.findAll({
+            where:{organization_id:organization_id },
+            attributes:{ exclude:  ['password'],include:['id','login','organization_id','surname', 'name', 'surname', 'enabled', 'createdAt', 'updatedAt'] },
+            include:[
+                {
+                    model: user_roles, attributes:['id'],
+                    include:[
+                        { model: roles, as: 'roleLink' }
+                    ]
+                },
+                {model: organizations, as: 'organizationLink'}
+            ]
+        });
+    }
+
+    async getCurrentUser(id) {
+        return await users.findOne({
+            where:{id:id },
+            attributes:{ exclude:  ['password'],include:['id','login','organization_id','surname', 'name', 'surname', 'enabled', 'createdAt', 'updatedAt'] }
+        });
+    }
+
+    async registration(login, password,surname,name,enabled,roles, organization_id){
+        const candidate = await users.findOne({ where: { login: login }   });
         if(candidate){
             throw ApiError.BadRequest(`Пользователь с таким логином ${login} уже существует`)
         }
         const hashedPassword = await bcrypt.hash(password,12);
 
-        const userData =  await user.create({
-            surname: surname, name:name, login:login, password:hashedPassword,enabled:enabled
+        const userData =  await users.create({
+            surname: surname, name:name, login:login, password:hashedPassword,enabled:enabled,organization_id:organization_id
         });
         const rolesData = [];
         await roles.forEach(role => { //todo
@@ -40,17 +63,24 @@ class UsersService {
 
         const userDto = new UserDto(userData); //surname, name, login, enabled, createdAt,  updatedAt
         userDto.roles = rolesData; //todo
-        return {userDto}
+        return userDto
     }
 
-    async updateUser(id, login, surname,name, enabled,roles){
-        const userData = await user.findOne({ where: { login: login, id: id}});
+    async updateUser(id, login, surname,name, enabled,roles,organization_id){
+        const userData = await users.findOne(
+            {
+                where: { login: login, id: id},
+                include:[
+                    {model: organizations, as: 'organizationLink'}
+                ]
+            });
         if(!userData){
             throw ApiError.BadRequest(`Пользователя с таким логином ${login} не существует`)
         }
         userData.surname = surname;
         userData.name = name;
         userData.enabled = enabled;
+        userData.organization_id = organization_id;
         await userData.save();
         await roleService.deleteUserRoles(userData.id); //todo
         const rolesData = [];
@@ -60,37 +90,36 @@ class UsersService {
         });
         const userDto = new UserDto(userData);
         userDto.roles = rolesData; //todo
-        return {userDto}
+        return userDto
     }
 
-    async updateUserPassword(id, login, password){
-        const userData = await user.findOne({ where: { login: login, id: id }});
+    async updateUserPassword(id, password){
+        const userData = await users.findOne({ where: {  id: id }});
         if(!userData){
-            throw ApiError.BadRequest(`Пользователя с таким логином ${login} не существует`)
+            throw ApiError.BadRequest(`Пользователя с таким логином не существует`)
         }
         userData.password = await bcrypt.hash(password,12);
         await userData.save();
-        const userDto = new UserDto(userData);
-        return {userDto}
+        return new UserDto(userData);
     }
 
     async login(login, password){
-        const userData = await user.findOne({
-            where: { login: login, enabled: true },
-            include:[
-                    {
-                        model: user_role,
-                        include:[
-                            { model: role, as: 'roleLink' }
-                        ]
-                    }
-                ]
+        const userData = await users.findOne({
+            where: {login: login, enabled: true},
+            include: [
+                {
+                    model: user_roles,
+                    include:[
+                        { model: roles, as: 'roleLink' }
+                    ]
+                },
+                {model: organizations, as: 'organizationLink'}
+            ]
         });
-
         if(!userData){
             throw ApiError.BadRequest('Неверный логин или пароль')
         }
-        if(!userData && !userData.user_roles && userData.user_roles<1 && !userData.user_roles[0].roleLink && !!userData.user_roles[0].roleLink.role_name){
+        if(!userData && !userData.user_roles && userData.user_roles<1){
             throw ApiError.ForbiddenError()
         }
         const isMatch =await bcrypt.compare(password,userData.password);
@@ -98,11 +127,12 @@ class UsersService {
             throw ApiError.BadRequest(`Неверный логин или пароль`)
         }
         const userDto = new UserDto(userData);
-        const roles = [];
+        const rolesArr = [];
         userData.user_roles.forEach(role => {
-            roles.push(role.roleLink.role_name);
+            rolesArr.push(role.roleLink.role_name);
         });
-        userDto.roles = roles;
+        userDto.roles = rolesArr;
+        userDto.organizationId = userData.organizationLink.id;
         const tokens = tokenService.generateTokens({...userDto});
         await tokenService.saveToken(userDto.id, tokens.refreshToken);
         return {...tokens, user: {...userDto}}
@@ -117,11 +147,30 @@ class UsersService {
         if (!userData || !tokenFromDb) {
             throw ApiError.UnauthorizedError();
         }
-        const currentUser = await user.findOne({where:{id:userData.id}});
+
+        const currentUser = await users.findOne(
+            {
+                where:{id:userData.id,enabled: true},
+                include: [
+                    {
+                        model: user_roles,
+                        include:[
+                            { model: roles, as: 'roleLink' }
+                        ]
+                    },
+                    {model: organizations, as: 'organizationLink'}
+                ]
+            });
         const userDto = new UserDto(currentUser);
+        const rolesArr = [];
+        currentUser.user_roles.forEach(role => {
+            rolesArr.push(role.roleLink.role_name);
+        });
+        userDto.roles = rolesArr;
+        userDto.organizationId = currentUser.organizationLink.id;
         const tokens = tokenService.generateTokens({...userDto});
         await tokenService.saveToken(userDto.id, tokens.refreshToken);
-        return {...tokens, user: userDto}
+        return {...tokens, user: {...userDto}}
     }
 
     async logout(refreshToken) {

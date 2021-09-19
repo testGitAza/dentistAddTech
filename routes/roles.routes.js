@@ -5,7 +5,7 @@ const router = Router();
 
 router.get(
     '/',
-    roleMiddleware(['ADMIN']),
+    roleMiddleware(['SUPER_ADMIN','ADMIN']),
     rolesController.getAllRoles
 );
 

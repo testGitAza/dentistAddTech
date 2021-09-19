@@ -12,9 +12,11 @@ app.use(cors());
 app.use(express.static('image'));
 //routes
 app.use('/api/users', require('./routes/users.routes'));
-app.use('/api/conferences', require('./routes/conferences.routes'));
-app.use('/api/conference_events', require('./routes/conference_events.routes'));
+app.use('/api/masters', require('./routes/masters.routes'));
+app.use('/api/master_events', require('./routes/master_events.routes'));
 app.use('/api/roles', require('./routes/roles.routes'));
+app.use('/api/organizations', require('./routes/organizations.routes'));
+app.use('/api/organization_clients', require('./routes/organization_clients.routes'));
 app.use(errorMiddleware);
 
 if(process.env.NODE_ENV === 'production'){
@@ -26,10 +28,8 @@ if(process.env.NODE_ENV === 'production'){
 
 async function start(){
     try{
-        //database
         const dbSequelize = require('./models');
         const db = dbSequelize.sequelize;
-        // test db
         db.authenticate()
             .then(() => console.log('database connected'))
             .catch(err => console.log('Error: ' + err));

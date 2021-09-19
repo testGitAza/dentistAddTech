@@ -1,5 +1,6 @@
 {
     "port":5000,
-    "jwtSecret": "addTechBarista addTechBarista",
-    "baseUrl": "https://ec2-3-87-162-77.compute-1.amazonaws.com/"
+    "jwtSecret": "addTechCalendar addTechCalendar",
+    "baseUrl": "http://localhost:5000"
+
 }

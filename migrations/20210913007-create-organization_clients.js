@@ -3,17 +3,35 @@ module.exports = {
   up: async (queryInterface, Sequelize) => {
     const transaction = await queryInterface.sequelize.transaction();
     try {
-      await queryInterface.createTable('tokens', {
+      await queryInterface.createTable('organization_clients', {
         id: {
           allowNull: false,
           autoIncrement: true,
           primaryKey: true,
           type: Sequelize.BIGINT
         },
-        refresh_token: {
+        client_name: {
+          allowNull: false,
+          type: Sequelize.STRING
+        },
+        client_phone: {
+          type: Sequelize.STRING
+        },
+        client_contacts: {
+          type: Sequelize.STRING
+        },
+        client_description: {
           type: Sequelize.TEXT
         },
-        user_id: {
+        enabled: {
+          allowNull: false,
+          type: Sequelize.BOOLEAN,
+          defaultValue: false
+        },
+        organization_id: {
+          type: Sequelize.BIGINT,
+        },
+        create_user_id: {
           type: Sequelize.BIGINT
         },
         createdAt: {
@@ -27,18 +45,19 @@ module.exports = {
       }, transaction);
 
       await queryInterface.addConstraint(
-          'tokens',
+          'organization_clients',
           {
             type: 'foreign key',
-            fields: ['user_id'],
-            name: 'users_tokens_id_fkey',
+            fields: ['organization_id'],
+            name: 'organization_id_fkey',
             references: {
-              table: 'users',
+              table: 'organizations',
               field: 'id'
             },
             transaction
           }
       );
+
 
       await transaction.commit();
     } catch (err) {
@@ -46,7 +65,7 @@ module.exports = {
       throw err;
     }
   },
-  down: async (queryInterface, Sequelize) => {
-    await queryInterface.dropTable('conferences');
-  }
+down: async (queryInterface, Sequelize) => {
+  await queryInterface.dropTable('organization_clients');
+}
 };

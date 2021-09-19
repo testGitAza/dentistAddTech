@@ -1,7 +1,7 @@
 {
-  "name": "addTechBarista",
+  "name": "addTechCalendar",
   "version": "1.0.0",
-  "description": "addTechBarista",
+  "description": "addTechCalendar",
   "main": "app.js",
   "scripts": {
     "migrations": "npx sequelize-cli db:migrate",
@@ -14,7 +14,7 @@
     "start": "cross-env NODE_ENV=production node app.js"
   },
   "keywords": [
-    "addTechBarista"
+    "addTechCalendar"
   ],
   "author": "A.Dolubaev",
   "license": "ISC",
@@ -45,11 +45,10 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/testGitAza/addTechBarista.git"
+    "url": "git+https://github.com/testGitAza/addTechCalendar.git"
   },
   "bugs": {
-    "url": "https://github.com/testGitAza/addTechBarista/issues"
+    "url": "https://github.com/testGitAza/addTechCalendar/issues"
   },
-  "homepage": "https://github.com/testGitAza/addTechBarista#readme"
+  "homepage": "https://github.com/testGitAza/addTechCalendar#readme"
 }
- 
