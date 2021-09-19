@@ -6,7 +6,7 @@ const ApiError = require('../exceptions/api-error');
 class UsersController {
     async getAllUsers(req, res, next) {
         try {
-
+            res.header("Access-Control-Allow-Origin", "*")
             if(await rolesService.checkCurrentRoles(req.user.roles, 'SUPER_ADMIN')) {
                 const users = await userService.getAllUsers();
                 return res.json(users);
@@ -95,6 +95,7 @@ class UsersController {
     async login(req, res, next) {
         try {
             const errors = validationResult(req);
+            res.header("Access-Control-Allow-Origin", "*")
             if (!errors.isEmpty()) {
                 return next(ApiError.BadRequest('Ошибка при валидации', errors.array()))
             }
