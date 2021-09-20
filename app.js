@@ -8,7 +8,6 @@ const PORT = config.get('port') || 5000;
 const app = express();
 app.use(express.json({extended:true}));
 app.use(cookieParser());
-app.use(cors({origin: '*'}));
 app.use(express.static('image'));
 //routes
 app.use('/api/users', require('./routes/users.routes'));
@@ -18,6 +17,7 @@ app.use('/api/roles', require('./routes/roles.routes'));
 app.use('/api/organizations', require('./routes/organizations.routes'));
 app.use('/api/organization_clients', require('./routes/organization_clients.routes'));
 app.use(errorMiddleware);
+app.use(cors({origin: '*'}));
 
 app.use('*', (req, res, next) => {
     res.header("Access-Control-Allow-Origin", "*"); // update to match the domain you will make the request from
