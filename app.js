@@ -21,6 +21,12 @@ app.use(errorMiddleware);
 
 if(process.env.NODE_ENV === 'production'){
     app.use('/', express.static(path.join(__dirname, 'client', 'build' )));
+    app.use('/', (req, res, next) => {
+        res.header("Access-Control-Allow-Origin", "dentist.addtech.company", "www.dentist.apptech.company"); // update to match the domain you will make the request from
+        res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
+        res.status(200).send('OK');
+    next();
+});
     app.get('*', (req,res) => {
         res.sendFile(path.resolve(__dirname,'client','build', 'index.html'))
     })
