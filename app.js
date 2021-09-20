@@ -19,8 +19,8 @@ app.use('/api/organizations', require('./routes/organizations.routes'));
 app.use('/api/organization_clients', require('./routes/organization_clients.routes'));
 app.use(errorMiddleware);
 
-app.use('/', (req, res, next) => {
-    res.header("Access-Control-Allow-Origin", "dentist.addtech.company", "www.dentist.apptech.company"); // update to match the domain you will make the request from
+app.use('*', (req, res, next) => {
+    res.header("Access-Control-Allow-Origin", "*"); // update to match the domain you will make the request from
     res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
     res.status(200).send('OK');
     next();
