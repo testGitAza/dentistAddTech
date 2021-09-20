@@ -10,6 +10,12 @@ app.use(express.json({extended:true}));
 app.use(cookieParser());
 app.use(express.static('image'));
 //routes
+app.options('/login', function (req, res) {
+  res.setHeader("Access-Control-Allow-Origin", "*");
+  res.setHeader('Access-Control-Allow-Methods', '*');
+  res.setHeader("Access-Control-Allow-Headers", "*");
+  res.end();
+});
 app.use('/api/users', require('./routes/users.routes'));
 app.use('/api/masters', require('./routes/masters.routes'));
 app.use('/api/master_events', require('./routes/master_events.routes'));
@@ -19,9 +25,10 @@ app.use('/api/organization_clients', require('./routes/organization_clients.rout
 app.use(errorMiddleware);
 app.use(cors({origin: '*'}));
 
-app.use('*', (req, res, next) => {
-    res.header("Access-Control-Allow-Origin", "*"); // update to match the domain you will make the request from
-    res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
+app.option('*', (req, res, next) => {
+    res.setHeader("Access-Control-Allow-Origin", "*");
+    res.setHeader('Access-Control-Allow-Methods', '*');
+    res.setHeader("Access-Control-Allow-Headers", "*");
     res.status(200).send('OK');
     next();
 })
