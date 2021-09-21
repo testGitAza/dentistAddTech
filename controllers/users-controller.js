@@ -95,7 +95,7 @@ class UsersController {
     async login(req, res, next) {
         try {
             const errors = validationResult(req);
-            res.header("Access-Control-Allow-Origin", "*"); // update to match the domain you will make the request from
+            res.header("Access-Control-Allow-Origin", "*")
             res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
             if (!errors.isEmpty()) {
                 return next(ApiError.BadRequest('Ошибка при валидации', errors.array()))
